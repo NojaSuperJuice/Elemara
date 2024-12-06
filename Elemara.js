@@ -23,4 +23,4 @@ for (const folder of commandFolders) {
 	}
 }
 
-client.login(token);
+client.login(process.env.token);
