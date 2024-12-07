@@ -12,13 +12,13 @@ client.on('messageCreate', message => {
 	 if (message.content.startsWith('!settimer ')) { 
 		const args = message.content.split(' '); 
 		const time = parseInt(args[1]); if (isNaN(time)) { 
-			message.channel.send('Hey! You need to provide a valid number of seconds!'); 
+			message.reply('Hey! You need to provide a valid number of seconds!'); 
 			return;
 		 } 
 		 
-		 message.channel.send(`Hey ${message.author.displayName}! You've set a timer set for ${time} seconds!`);
+		 message.channel.send(`Hey <@${message.author.id}>! You've set a timer set for ${time} seconds!`);
 		
-		 setTimeout(() => { message.channel.send(`Time's up ${message.author.displayName}!`); }, time * 1000); 
+		 setTimeout(() => { message.channel.send(`Time's up <@${message.author.id}>!`); }, time * 1000); 
 		}
 	});
 client.login(token);
