@@ -1,23 +1,24 @@
 require('dotenv').config();
 const token = process.env.DISCORD_TOKEN;
-const openai_api_key = process.env.OPENAI_API_KEY;
-
-const { Configuration, OpenAIApi } = require('openai');
 
 const { Client, GatewayIntentBits } = require('discord.js');
+const OpenAI = require('openai');
+
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-const configuration = new Configuration({
-	apiKey: openai_api_key,
+const openai = new OpenAI({
+	apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
+
 
 client.once('ready', () => {
 	console.log(`Ready! Logged in as ${client.user.tag}!.`);
 });
 
 client.on('messageCreate', message => {
-	 if (message.content.startsWith('!settimer ')) { 
+	if (message.author.bot) return; 
+	if (message.content.startsWith('!settimer ')) { 
 		const args = message.content.split(' '); 
 		const time = parseInt(args[1]); if (isNaN(time)) { 
 			message.reply('Hey! You need to provide a valid number of seconds!'); 
@@ -30,20 +31,21 @@ client.on('messageCreate', message => {
 		}
 	});
 
-client.on('messageCreate', async message => { 
-		if (message.author.bot) return;  
-		if (!message.content.startsWith('!Elemara ')) return;  
-		
-		const prompt = message.content.slice(5);  
-		try { 
-			const response = await openai.createCompletion({ 
-				model: 'text-davinci-003', 
-				prompt: prompt, 
-				max_tokens: 150, }); 
-				message.channel.send(response.data.choices[0].text.trim()); 
-			} catch (error) { console.error(error); 
-				message.channel.send('Sorry, something went wrong.'); 
-			} 
-		});
+	client.on('messageCreate', async (message) => {
+		if (message.author.bot) return;
+	
+		try {
+			const response = await openai.chat.completions.create({
+				model: "gpt-3.5-turbo",
+				messages: [{ role: "user", content: message.content }],
+				max_tokens: 150,
+			});
+			const reply = response.data.choices[0].message.content;
+			message.reply(reply);
+		} catch (error) {
+			console.error("Error:", error);
+			message.reply("Sorry, I encountered an error!");
+		}
+	});
 
 client.login(token);
